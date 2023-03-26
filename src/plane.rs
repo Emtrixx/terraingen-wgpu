@@ -4,10 +4,6 @@ use cgmath::{Matrix4, Point3, Vector3};
 use crate::noise::{Noise2D, PerlinNoise};
 use crate::vertex::Vertex;
 
-// pub struct Geometry {
-
-// }
-
 // struct Quad {
 //     vertices: [Vertex; 4],
 //     indices: [u16; 6],
@@ -27,7 +23,6 @@ impl Plane {
         let segment_width = width / width_segments as f32;
         let segment_height = height / height_segments as f32;
 
-        // let mut positions: Vec<[f32; 3]> = Vec::new();
         let arr_width = width_segments + 1;
         let arr_height = height_segments + 1;
 
@@ -36,8 +31,6 @@ impl Plane {
             let y_pos = -height / 2.0 + y as f32 * segment_height;
             for x in 0..arr_width {
                 let x_pos = -width / 2.0 + x as f32 * segment_width;
-                // positions.push([x_pos, 0.0, y_pos]);
-                // TODO Remove this shifted positions
                 vertices.push(Vertex {
                     position: [x_pos, 0.0, y_pos],
                     color: [0.5, 0.0, 0.5],
@@ -56,27 +49,6 @@ impl Plane {
             }
         }
 
-        // let vertices = Vec::from([
-        //     Vertex {
-        //         position: [1.0, 1.0, 0.0],
-        //         color: [0.5, 0.0, 0.5],
-        //     },
-        //     Vertex {
-        //         position: [-1.0, 1.0, 0.0],
-        //         color: [0.5, 0.0, 0.5],
-        //     },
-        //     Vertex {
-        //         position: [-1.0, 0.0, 0.0],
-        //         color: [0.5, 0.0, 0.5],
-        //     },
-        //     Vertex {
-        //         position: [1.0, 0.0, 0.0],
-        //         color: [0.5, 0.0, 0.5],
-        //     },
-        // ]);
-
-        // let indices = Vec::from([0, 1, 2, 0, 2, 3]);
-
         Self {
             width,
             height,
@@ -88,6 +60,8 @@ impl Plane {
     }
 
     pub fn apply_heightmap(&mut self) {
+        // Recreating the vertices array with the heightmap. Could be improved by just updating the height and color values.
+
         // let mut positions: Vec<[f32; 3]> = Vec::new();
         let perlin = PerlinNoise::new(0, 256, 0.5, 1.0, 3, 0.5, 2.0);
 
@@ -102,12 +76,12 @@ impl Plane {
             let y_pos = -self.height / 2.0 + y as f32 * segment_height;
             for x in 0..arr_width {
                 let x_pos = -self.width / 2.0 + x as f32 * segment_width;
-                let height = perlin.get_noise(x_pos + 40., y_pos + 40.);
+                let height = perlin.get_noise(x_pos, y_pos);
 
                 let color = get_color(height);
                 // positions.push([x_pos, 0.0, y_pos]);
                 vertices.push(Vertex {
-                    position: [x_pos, height * 3., y_pos],
+                    position: [x_pos, height * 3.0, y_pos],
                     color: color,
                 });
             }
@@ -118,7 +92,7 @@ impl Plane {
 }
 
 fn get_color(height: f32) -> [f32; 3] {
-    let mut color = [0.0, 0.0, 0.0];
+    let mut color = [1.0, 1.0, 1.0];
     if height < 0.0 {
         color = [0.0, 0.0, 1.0];
     } else if height < 0.1 {
@@ -129,8 +103,6 @@ fn get_color(height: f32) -> [f32; 3] {
         color = [1.0, 0.5, 0.0];
     } else if height < 0.4 {
         color = [1.0, 0.0, 0.0];
-    } else {
-        color = [1.0, 1.0, 1.0];
     }
     color
 }

@@ -1,3 +1,5 @@
+// Only used for depth texture in this example
+
 pub struct Texture {
     pub texture: wgpu::Texture,
     pub view: wgpu::TextureView,

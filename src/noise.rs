@@ -2,6 +2,8 @@ use cgmath::{num_traits::ToPrimitive, InnerSpace, Vector2};
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
+use crate::utils::math::{lerp, smooth_step};
+
 pub trait Noise2D {
     fn get_noise(&self, x: f32, y: f32) -> f32;
 }
@@ -55,11 +57,12 @@ impl PerlinNoise {
 
     fn generate(&self, input: [f32; 2]) -> f32 {
         // Corner Vectors
-        // TODO i32 -> u32?
-        let x = (input[0].floor() % 255.).to_usize().unwrap();
-        let y = (input[1].floor() % 255.).to_usize().unwrap();
+        let x = input[0].floor();
+        let y = input[1].floor();
         let x0 = input[0] - x as f32;
         let y0 = input[1] - y as f32;
+        let x = (x.to_i32().unwrap() & 255) as usize;
+        let y = (y.to_i32().unwrap() & 255) as usize;
 
         let top_right = [x0 - 1.0, y0 - 1.0];
         let top_left = [x0, y0 - 1.0];
@@ -121,6 +124,7 @@ impl Noise2D for PerlinNoise {
     }
 }
 
+// Used for testing
 fn get_constant_vector(v: usize) -> Vector2<f32> {
     let h = v & 3;
     if h == 0 {
@@ -132,12 +136,4 @@ fn get_constant_vector(v: usize) -> Vector2<f32> {
     } else {
         return Vector2::new(1.0, -1.0);
     }
-}
-
-fn lerp(a: f32, b: f32, t: f32) -> f32 {
-    a + t * (b - a)
-}
-
-fn smooth_step(t: f32) -> f32 {
-    ((6. * t - 15.) * t + 10.) * t * t * t
 }
